@@ -1,0 +1,30 @@
+{
+  "status": "0",
+  "msg": "",
+  "result": [
+    {
+      "productId": "101",
+      "productImg": "1.jpg",
+      "productName": "充电器",
+      "productPrice": 200
+    },
+    {
+      "productId": "102",
+      "productImg": "2.jpg",
+      "productName": "自拍杆",
+      "productPrice": 100
+    },
+    {
+      "productId": "103",
+      "productImg": "3.jpg",
+      "productName": "充电器",
+      "productPrice": 200
+    },
+    {
+      "productId": "104",
+      "productImg": "4.jpg",
+      "productName": "自拍杆",
+      "productPrice": 100
+    }
+  ]
+}
