@@ -1,7 +1,7 @@
 <template>
 	<div>
 		<!--头部-->
-    <nav-header></nav-header>
+    <nav-header @listenToChild="getUserId"></nav-header>
     <!--面包屑-->
     <nav-bread>
       <span slot="bread">商品列表</span>
@@ -22,7 +22,7 @@
               <p>{{item.productName}}</p>
               <p class="text">￥{{item.sellPrice}}</p>
               <!--加入购物车按钮-->
-              <a href="" class="car">加入购物车</a>
+              <a href="javascript:void(0);" class="car" @click="addCart(item.id)">加入购物车</a>
             </div>
           </div>
         </div>
@@ -34,7 +34,7 @@
               <span class="glyphicon glyphicon-arrow-up" aria-hidden="true" @click="getGoodsList(0,1)"></span>
               <span class="glyphicon glyphicon-arrow-down" aria-hidden="true" @click="getGoodsList(0,-1)"></span>
             </p>
-            <a href="javascript:;" :class="{'cur':priceChecked==='all'}" @click="priceChecked='all'">所有</a>
+            <a href="javascript:;" :class="{'cur':priceChecked==='all'}" @click="priceChecked='all';getGoodsList(0);getGoodsCount()">所有</a>
             <div v-for="(price,index) in priceFilter">
               <a href="javascript:;" :class="{'cur':priceChecked===index}" @click="setPriceFilter(index);getPriceFilter(price.startPrice,price.endPrice)">{{price.startPrice}}-{{price.endPrice}}</a>
             </div>
@@ -62,8 +62,6 @@
 	</div>
 </template>
 <script>
-  import './../assets/css/reset.css'
-  import './../assets/css/base.css'
   import NavHeader from './../components/Header'
   import NavBread from './../components/Bread'
   import axios from 'axios'
@@ -89,7 +87,8 @@
             endPrice:5000
           }
         ],
-        priceChecked: "all"
+        priceChecked: "all",
+        userId:0
       }
     },
     components: {
@@ -112,7 +111,7 @@
             "sorts":sort
           }
         }
-        axios.get("/goods",{
+        axios.get("/goods/list",{
           params:params
         }).then((res) => {
           this.goodsList = res.data.result.list;
@@ -129,7 +128,7 @@
       },
     //  获取分页
       getPage(index){
-        axios.get("/goods",{
+        axios.get("/goods/list",{
           params:{
             "page":index
           }
@@ -139,28 +138,43 @@
       },
     //  价格筛选
       getPriceFilter(sPrice,ePrice){
-        axios.get("/goods",{
+        axios.get("/goods/list",{
           params:{
             "sPrice":sPrice,
             "ePrice":ePrice
           }
         }).then((res)=>{
-          console.log(res);
+          this.goodsList = res.data.result.list;
+          this.goodsCount = Math.ceil(res.data.result.count/12);
         })
+      },
+    //  添加购物车
+      addCart(id){
+        axios.post('/goods/addCart',{
+          product_id:id,
+          user_id:this.userId
+        }).then((data)=>{
+          let res = data.data;
+          if (res.msg === "没登录"){
+            alert(res.msg);
+          }
+          if (res.status === "1"){
+            alert(res.msg);
+            // 修改购物车数量
+            this.$store.commit("updateCartCount",1);
+          }
+          console.log(data);
+        })
+      },
+      // 获取用户id
+      getUserId(id){
+        this.userId = id;
+        console.log("获取用户id"+this.userId);
       }
     }
   }
 </script>
 <style>
-  #header a{
-    float: right;
-    display: block;width: 100px;height: 100%;
-    line-height: 40px;text-align: center;font-size: 14px;color: #fff;
-  }
-  h1{
-    color: #fff;
-    font-size: 20px;
-  }
   .glyphicon-arrow-up,.glyphicon-arrow-down{
     cursor: pointer;
   }

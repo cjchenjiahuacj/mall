@@ -11,6 +11,22 @@ function _connectDB(dbName) {
     return connection;
 }
 
+
+//执行
+exports.exe = function(dbName,sql){
+  return new Promise((resolve, reject)=>{
+    _connectDB(dbName).query(sql,function (err,results,fields) {
+      if (err){
+        reject(err);
+      }
+      resolve(results,fields);
+    });
+    //结束
+    _connectDB(dbName).end();
+  });
+};
+
+
 //查询
 exports.find = function(dbName,sql,callback){
     _connectDB(dbName).query(sql,function (err,results,fields) {

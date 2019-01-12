@@ -13,7 +13,7 @@ Array.prototype.inArray = function (el){
 };
 
 /* GET users listing. */
-router.get('/', function(req, res, next) {
+router.get('/list', function(req, res, next) {
   //获取传递参数
   let sort = req.query.sorts;
   let page = req.query.page;
@@ -57,6 +57,68 @@ router.get('/count',function (req,res,next) {
       "count":results.length
     })
   })
+});
+
+//把商品提交到购物车列表
+router.post('/addCart',function (req,res,next) {
+  //获取用户的id 信息
+  let user_id = req.session.userId;
+  //获取购物车信息 id
+  let product_id = req.body.product_id;
+  console.log(req.body);
+  //根据用户信息把商品,该用户加入购物车表
+  //如果该购物车列表存在该商品，直接给存在该购物车列表的商品数目增加
+  //先查用户表，根据用户id获取数据，再判断获取的数据是否存在，根据商品id查找商品表，
+  mysql.exe("jd","select * from cartlist").then((results1)=>{
+      console.log(results1);
+      // 如果购物车列表为空
+      if (results1.length === 0) {
+        //添加数据
+        mysql.exe("jd","INSERT INTO cartlist (product_id,user_id,checked,amount) VALUES ("+product_id+","+user_id+",'0',1)").then(()=>{
+          res.json({
+            "status":'1',
+            "msg":"添加cartlist成功"
+          })
+        }).catch((e)=>{
+          res.json({
+            "status":'0',
+            "msg":e.message
+          })
+        })
+      }
+      for (let i=0;i<results1.length;i++){
+        if (results1[i].product_id === product_id) {
+          //更新数据就行
+          let amount = results1[i].amount+1;
+          mysql.exe("jd","update cartlist set amount="+amount+" where product_id="+product_id).then(()=>{
+            res.json({
+              "status":'1',
+              "msg":"更新cartlist成功"
+            })
+          }).catch((e)=>{
+            res.json({
+              "status":'0',
+              "msg":e.message
+            })
+          });
+          return;
+        }
+      }
+      //添加数据
+      mysql.exe("jd","INSERT INTO cartlist (product_id,user_id,checked,amount) VALUES ("+product_id+","+user_id+",'0',1)").then(()=>{
+        res.json({
+          "status":'1',
+          "msg":"添加cartlist成功"
+        })
+      }).catch((e)=>{
+        res.json({
+          "status":'0',
+          "msg":e.message
+        })
+      });
+    }).catch((e)=>{
+      console.log("查找失败"+e);
+    })
 });
 
 

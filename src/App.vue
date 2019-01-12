@@ -5,6 +5,8 @@
 </template>
 
 <script>
+  import '../static/css/reset.css'
+  import '../static/css/base.css'
 export default {
   name: 'App'
 }
@@ -13,6 +15,10 @@ export default {
 <style>
   body{
     background-color: #f2f6f7;
+  }
+  body.modal-open {
+    overflow-y: auto !important;
+    padding-right: 0 !important;
   }
 #app {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
